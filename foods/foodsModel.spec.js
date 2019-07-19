@@ -71,7 +71,7 @@ describe(` test db tests !!!! `, () => {
                 expect(food).toBeUndefined();
         })
 
-        it('should hit foods endpoint', async () => {
+        it('should hit foods endpoint and return [] with no test data', async () => {
                 const res = await request(server).get('/foods');
                 expect(res.status).toBe(200);
                 expect(res.body).toEqual([]);

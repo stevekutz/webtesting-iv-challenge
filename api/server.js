@@ -4,7 +4,7 @@ const express = require('express');
 // define model namesapce
 const Foods = require('../foods/foodsModel');
 
-//define express app as server
+//define express app as server, provides req.body
 const server = express();
 
 
@@ -43,7 +43,7 @@ server.get('/', (req, res) => {
     
     try{
       const food = await Foods.findById(id);
-      console.log('server promise Food', food)
+      console.log('server promise Food', food);
        
       if(food){
         res.status(200).json(food)
@@ -60,6 +60,27 @@ server.get('/', (req, res) => {
     }
   })
 
+  server.post('/foods', noDups, async (req, res) => {
+    try{
+        if(req.body.name === '') {
+            res.status(451).json({
+                message: `Please add a food item`
+            })
+        } else {
+            const foodItem = await Foods.insert(req.body);
+            console.log(' !!!!!  foodItem is ', foodItem);
+            res.status(201).json({foodItem});
+        }    
+  }
+  catch (err) {
+      res.status(500).json({
+        message: `ERROR`
+      });
+    }
+})
+
+
+/*
   server.post('/foods', async (req, res) => {
       try{
           if(req.body.name === '') {
@@ -67,8 +88,9 @@ server.get('/', (req, res) => {
                   message: `Please add a food item`
               })
           } else {
-              const footItem = await Foods.insert(req.body);
-              res.status(201).json({footItem});
+              const foodItem = await Foods.insert(req.body);
+              console.log(' !!!!!  foodItem is ', foodItem);
+              res.status(201).json({foodItem});
           }    
     }
     catch (err) {
@@ -77,8 +99,10 @@ server.get('/', (req, res) => {
         });
       }
   })
-
-
+*/
+  // promise returns # of affected rows
+  //   when deleted items exists, returns 1
+  // when deleted item does not exist, return 0
   server.delete('/foods/:id', async(req, res) => {
     const {id} = req.params;
     
@@ -122,6 +146,30 @@ server.get('/', (req, res) => {
         });
       }
   })
+
+  // custom middleware
+  async function noDups(req, res, next) {
+    try {
+        const {name} = req.body;
+        const nameExists = await Foods.findByName(name);
+        console.log('***  name is ', name);
+        console.log('*** nameExists is ', nameExists);
+
+        if(nameExists){
+            res.status(451).json({
+                message: ` food ${name} already exists, not added`
+            })
+        } else {
+            next();
+        }
+    }
+    catch (err) {
+        res.status(500).json({
+          message: `ERROR in MW`
+        });
+      }
+  }
+
 
 
   module.exports = server;

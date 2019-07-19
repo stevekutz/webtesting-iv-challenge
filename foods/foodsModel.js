@@ -6,6 +6,7 @@ module.exports = {
   remove,
   getAll,
   findById,
+  findByName,
 };
 
 async function insert(food) {
@@ -33,9 +34,26 @@ function getAll() {
 }
 
 
+function findByName(name) {
+    return db('foods')
+    .where({name})
+    .first();
+  
+  }
+
 function findById(id) {
   return db('foods')
   .where({id})
   .first();
 
 }
+
+/*
+ // BREAKS -  returns [] without first(); when requested id that does not exist
+ // breaks tests on insert tests
+function findById(id) {
+    return db('foods')
+    .where({id});
+  //  .first();
+  }
+*/  
