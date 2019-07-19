@@ -60,6 +60,24 @@ server.get('/', (req, res) => {
     }
   })
 
+  server.post('/foods', async (req, res) => {
+      try{
+          if(req.body.name === '') {
+              res.status(451).json({
+                  message: `Please add a food item`
+              })
+          } else {
+              const footItem = await Foods.insert(req.body);
+              res.status(201).json({footItem});
+          }    
+    }
+    catch (err) {
+        res.status(500).json({
+          message: `ERROR`
+        });
+      }
+  })
+
 
   server.delete('/foods/:id', async(req, res) => {
     const {id} = req.params;
@@ -82,5 +100,28 @@ server.get('/', (req, res) => {
       });
     }
   })
+
+  server.put('/foods/:id', async(req, res) => {
+    const updatedFood = req.body;
+    const {id} = req.params;
+
+    try{
+        const foodUpdate = await Foods.update(id, updatedFood);
+
+        if(foodUpdate){
+            res.status(201).json({updatedFood})
+        } else {
+            res.status(451).json({
+                message: `Food id ${id} does not exist`
+            })
+        }
+    }
+    catch (err) {
+        res.status(500).json({
+          message: `ERROR`
+        });
+      }
+  })
+
 
   module.exports = server;

@@ -17,7 +17,9 @@ async function insert(food) {
 }
 
 async function update(id, changes) {
-  return null;
+  return db('foods')
+    .where({id})
+    .update(changes);
 }
 
 function remove(id) {
